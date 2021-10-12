@@ -2,13 +2,13 @@ name: release
 
 on:
   push:
+    branches: [stable]
   workflow_dispatch:
     inputs:
       devN:
         description: 'development release number'
         required: false
         default: '0'
-
 
 env:
   PKG_NAME: peerdid
@@ -39,7 +39,7 @@ jobs:
         id: current_version
         run: |
           python -m pip install . --no-deps
-          out="$(pip show ${{ env.PKG_NAME }} | grep Version: | awk '{print $2}')"
+          out="$(pip show ${{ env.PKG_NAME }} | grep 'Version:' | awk '{print $2}')"
           echo "$out"
           echo "::set-output name=current_version::$out"
         shell: bash
@@ -204,7 +204,7 @@ jobs:
 
       - name: set dev version
         run: |
-          sed -i -r "s~version=\"(.+)\"~version=\"\1.dev${{ github.event.inputs.devN }}\"~" ./setup.py
+          sed -i -r "s~__version__ = \"(.+)\"~__version__ = \"\1.dev${{ github.event.inputs.devN }}\"~" ./peerdid/__init__.py
           grep version ./setup.py
         shell: bash
 
